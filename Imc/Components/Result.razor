@@ -1,0 +1,49 @@
+﻿@page "/result"
+@using Imc.Components
+@using Imc.Pages
+@inject NavigationManager NavigationManager;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+    <title>Parabéns</title>
+</head>
+<body>
+<div class="app-container" style="display: @(IsVisible ? "flex" : "none")">
+    <div class="title-logo">
+        <img src="assets/icon-no-bg.png" class="logo" alt="">
+    </div>
+    <div class="title-container">
+        <h1 class="title">@TitleText</h1>
+        <h3 class="description">@DescriptionText</h3>
+    </div>
+    <div class="button-request-container">
+        <button class="btnCalculate" type="submit">Registrar Medidas</button>
+        <button class="btnHistory" type="submit" onclick="@NavigateToHistory">Ver meu histórico</button>
+        <button class="btnCloseModal" type="submit" onclick="@Close">Fechar</button>
+    </div>
+</div>
+</body>
+</html>
+
+@code
+{
+	[Parameter] public EventCallback onclickCloseModal { get; set; }
+    [Parameter] public string? TitleText { get; set; } = "\u2705Parabéns!";
+    [Parameter] public string? DescriptionText { get; set; } = "Você está no peso ideal, continue<br>mantendo este estilo!";
+    [Parameter] public bool IsVisible { get; set; }
+
+	private void Close()
+	{	
+    	onclickCloseModal.InvokeAsync();
+		NavigationManager.NavigateTo("/calculadora");
+	}
+
+    private void NavigateToHistory()
+    {
+        NavigationManager.NavigateTo("/history");
+    }
+}

@@ -1,0 +1,78 @@
+﻿@page "/history"
+@inject ILocalStorageService localStorage
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+    <PageTitle>Histórico</PageTitle>
+</head>
+<body>
+    <div class="app-container">
+        <div class="title-logo">
+            <img src="../assets/icon-no-bg.png" class="logo" alt="">
+        </div>
+        <div class="title-container">
+            <h1 class="title">Cálculo de IMC</h1>
+        </div>
+        <div class="search-data-container">
+            <input class="inputSearch" type="text" placeholder="Pesquisar..."/>
+        </div>
+        <div class="calculsList">
+        @foreach (var item in storedItems)
+            {
+                @if (item != null)
+                {
+                    <div class="Item">
+                        <div class="titleDate">
+                            <h4>@item.Titulo</h4>
+                            <p>@item.Data</p>
+                        </div>
+                        <p class="description">@item.Descricao</p>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</body>
+</html>
+
+@code {
+    public class Item
+    {
+        public string Titulo { get; set; } = "Peso ideal ✅";
+        public string Data { get; set; } = DateTime.Now.ToString("dd/MM/yyyy");
+        public string Descricao { get; set; } = "Parabéns, você está no seu peso ideal, continue mantendo este estilo!";
+    }
+    private List<Item?> storedItems = new List<Item?>();
+
+    protected override async Task OnInitializedAsync()
+    {
+    await base.OnInitializedAsync();
+
+    await Initial();
+    }
+
+    private async Task Initial()
+    {
+        await RetrieveAllItems();
+    }
+    public async Task RetrieveAllItems()
+    {
+        storedItems.Clear();
+        var keys = await localStorage.KeysAsync();
+        keys = keys.OrderByDescending(i => i).ToList();
+        foreach (var key in keys)
+        {
+            string? json = await localStorage.GetItemAsync<string>(key);
+
+            if (json != null)
+            {
+                Item? item = System.Text.Json.JsonSerializer.Deserialize<Item>(json);
+                storedItems.Add(item);
+            }
+        }
+    }
+}

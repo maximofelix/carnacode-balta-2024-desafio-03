@@ -1,0 +1,63 @@
+﻿html, body {
+    font-family: "Inter", serif;
+}
+
+.app-container {
+    top: 10%;
+    left: 47%;
+    display: flex;
+    padding: 40px;
+    flex-direction: column;
+    background-color: #2E1462;
+    border-radius: 20px;
+}
+
+.logo {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 60%;
+    border: 5px solid #45FEFE;
+    border-radius: 30px;
+}
+
+.title-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+.title-container h1 {
+    color: #FFF;
+    font-size: 250%;
+    font-weight: 500;
+}
+
+.title-container h3 {
+    color: #FFF;
+    font-size: 100%;
+    text-align-last: center;
+}
+
+.button-request-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.button-request-container button {
+    width: 100%;
+    padding: 10px 0;
+    border-radius: 25px;
+    border: 0 solid;
+    background-color: #45FEFE;
+}
+
+.button-request-container .btnHistory {
+    padding: 7px 0;
+    border: 3px solid #45FEFE;
+    background-color: #FFF;
+}

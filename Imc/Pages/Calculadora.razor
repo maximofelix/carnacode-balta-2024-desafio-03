@@ -1,0 +1,131 @@
+﻿@using Imc.Components
+@using System
+@page "/calculadora"
+@inject NavigationManager NavigationManager;
+@inject IToastService toastService
+@inject ILocalStorageService localStorage
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+    <PageTitle>Calculadora</PageTitle>
+</head>
+<body>
+    <div class="app-container">
+        <BlazoredToasts />
+        @if (modalVisible)
+        {
+            <Result IsVisible="@modalVisible" onclickCloseModal="@Close" TitleText="@item.Titulo" DescriptionText="@item.Descricao" />
+        }
+        else
+        {
+            <div class="title-container">
+                <h1 class="title">Cálculo de IMC</h1>
+            </div>
+            <div class="imc-data-container">
+                <input class="inputHeight" @bind="@height" type="number" placeholder="Altura"/>
+                <input class="inputWeight" @bind="@weight" type="number" placeholder="Peso"/>
+            </div>
+            <div class="ageCaptcha-container">
+                <input class="ageCaptcha" id="ageCaptcha" type="checkbox">
+                <label for="ageCaptcha">Eu tenho 65 anos ou mais</label>
+            </div>
+            <div class="button-request-container">
+                <button class="btnCalculate" @onclick="CalculaIMC">Calcular meu IMC</button>
+                <a href="https://vidasaudavel.einstein.br/calcular-o-seu-imc/" target="_blank">
+                    <button class="btnUnderstand" type="submit">Entenda o cálculo</button>
+                </a>
+            </div>
+        }
+    </div>
+</body>
+</html>
+
+@code
+{
+    bool modalVisible = false;
+    private string height = "";
+    private string weight = "";
+    private double HeightAsDouble => string.IsNullOrEmpty(height) ? 0.0 : double.Parse(height);
+    private double WeightAsDouble => string.IsNullOrEmpty(weight) ? 0.0 : double.Parse(weight);
+    public string sex { get; set; } = "";
+    public double resultCalcule { get; set; }
+    public string? resultTitlePhrase { get; set; }
+    public string? resultDescriptionPhrase { get; set; }
+    private Item item = new Item();
+    public class Item {
+        public string Titulo { get; set; } = "Peso ideal ✅";
+        public string Data { get; set; } = DateTime.Now.ToString("dd/MM/yyyy");
+        public string Descricao { get; set; } = "Parabéns, você está no seu peso ideal, continue mantendo este estilo!";
+    }
+
+    private void Close()
+    {
+        modalVisible = false;
+    }
+
+    private void EmptyField()
+    {
+        height = string.Empty;
+        weight = string.Empty;
+    }
+
+    private bool ValidaSeTemDado()
+    {
+        if (string.IsNullOrEmpty(height) || string.IsNullOrEmpty(weight) )
+        {
+            toastService.ShowError("Altura e peso precisam serem preenchidos");
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task SaveData()
+    {
+        string json = System.Text.Json.JsonSerializer.Serialize(item);
+        string keyName = "Data_" + DateTime.Now.Ticks;
+        await localStorage.SetItemAsync(keyName, json);
+    }
+    private async Task CalculaIMC()
+    {
+        if (ValidaSeTemDado())
+        {
+
+            double altura = 0;
+            double peso = 0;
+
+            double.TryParse(height, out altura);
+            double.TryParse(weight, out peso);
+
+            resultCalcule = peso / (altura * altura);
+
+            if (resultCalcule < 18.5)
+            {
+                item.Titulo = "Peso baixo!";
+                item.Descricao = "Peso baixo!";
+            }
+            if (resultCalcule >= 18.5 && resultCalcule < 25)
+            {
+                item.Titulo = "Peso Ideal!";
+                item.Descricao = "Peso Ideal!";
+            }
+            if (resultCalcule >= 25 && resultCalcule < 30)
+            {
+                item.Titulo = "Sobrepeso";
+                item.Descricao = "Sobrepeso";
+            }
+            if (resultCalcule > 30)
+            {
+                item.Titulo = "Obesidade";
+                item.Descricao = "Obesidade";
+            }
+            await SaveData();
+            modalVisible = true;
+            EmptyField();
+        }
+    }
+}
